@@ -5,6 +5,8 @@
     <title>نظام الاختبارات الإلكتروني</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js"></script>
     <style>
         :root {
             --primary-color: #2A5C82;
@@ -136,12 +138,23 @@
     </div>
 
     <script>
+        // ⚠️ استبدل بإعدادات Firebase الخاصة بك
+        const firebaseConfig = {
+            apiKey: "AIzaSyBNBPYkYxOOf_p4IdV2GFtT6ovrsGWgsrY",
+            authDomain: "student-results-app-1be4e.firebaseapp.com",
+            databaseURL: "https://student-results-app-1be4e-default-rtdb.firebaseio.com",
+            projectId: "student-results-app-1be4e",
+            storageBucket: "student-results-app-1be4e.firebasestorage.app",
+            messagingSenderId: "999964098772",
+            appId: "1:999964098772:web:8e34ed3c211bffe33f7b41"
+        };
+
+        // تهيئة Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
         // إعدادات النظام
         const CORRECT_PASSWORD = "2485";
-        const GITHUB_TOKEN = "YOUR_GITHUB_TOKEN";
-        const REPO_OWNER = "YOUR_GITHUB_USERNAME";
-        const REPO_NAME = "YOUR_REPO_NAME";
-        
         let questions = [];
         let userAnswers = [];
         let timeLeft = 600;
@@ -225,6 +238,19 @@
             const totalScore = ((score / questions.length) * 25).toFixed(1);
             const username = document.getElementById('username').value;
 
+            // حفظ النتائج في Firebase
+            try {
+                await database.ref('results').push({
+                    username: username,
+                    score: totalScore,
+                    answers: userAnswers,
+                    timestamp: new Date().toISOString()
+                });
+            } catch (error) {
+                console.error('حدث خطأ في الحفظ:', error);
+            }
+
+            // عرض النتيجة
             let answersReport = '';
             questions.forEach((q, index) => {
                 const userAnswer = userAnswers[index] !== -1 ? 
@@ -258,41 +284,6 @@
             document.getElementById('resultSection').innerHTML = resultHTML;
             document.getElementById('quizContainer').classList.add('hidden');
             document.getElementById('resultSection').classList.remove('hidden');
-
-            await saveResultsToGitHub(username, totalScore);
-        }
-
-        async function saveResultsToGitHub(username, score) {
-            const data = {
-                username: username,
-                score: score,
-                timestamp: new Date().toISOString(),
-                answers: userAnswers
-            };
-
-            try {
-                const response = await fetch(
-                    `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/results.json`,
-                    {
-                        method: 'PUT',
-                        headers: {
-                            'Authorization': `token ${GITHUB_TOKEN}`,
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            message: 'New quiz result',
-                            content: btoa(JSON.stringify(data)),
-                            sha: localStorage.getItem('fileSha')
-                        })
-                    }
-                );
-                
-                const result = await response.json();
-                localStorage.setItem('fileSha', result.content.sha);
-                console.log('تم الحفظ بنجاح:', result);
-            } catch (error) {
-                console.error('خطأ في الحفظ:', error);
-            }
         }
 
         function captureResult() {
@@ -302,6 +293,16 @@
                 link.href = canvas.toDataURL();
                 link.click();
             });
+        }
+
+        // عرض النتائج المخزنة (اختياري)
+        async function loadResults() {
+            const snapshot = await database.ref('results').once('value');
+            const results = [];
+            snapshot.forEach(child => {
+                results.push(child.val());
+            });
+            console.log('جميع النتائج:', results);
         }
     </script>
 </body>
