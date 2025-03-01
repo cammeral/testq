@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar" dir="ltr">
 <head>
     <meta charset="UTF-8">
     <title>نظام الاختبارات الإلكتروني</title>
@@ -26,6 +26,8 @@
             background: linear-gradient(45deg, #e3f2fd, #f3e5f5);
             min-height: 100vh;
             padding: 20px;
+			text-align: left;
+            font-family: 'Arial', sans-serif;
         }
 
         .container {
@@ -69,8 +71,10 @@
         .question {
             margin: 20px 0;
             padding: 15px;
-            border-left: 4px solid var(--primary-color);
+            border-left: none;
             background: var(--light-color);
+			border-right: 4px solid #2A5C82;
+
         }
 
         .option {
@@ -81,6 +85,11 @@
             border-radius: 5px;
         }
 
+        
+        .option:hover {
+            transform: translateX(-10px);
+        }
+		
         .selected {
             background: var(--success-color) !important;
             color: white;
@@ -89,11 +98,12 @@
         .timer {
             position: fixed;
             top: 20px;
-            left: 20px;
+            left: auto;
             background: white;
             padding: 10px 20px;
             border-radius: 30px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+			right: 20px;
         }
 
         .answer-report {
@@ -120,7 +130,7 @@
             <h2>تسجيل الدخول</h2>
             <input type="text" id="username" placeholder="اسم المستخدم">
             <input type="password" id="password" placeholder="كلمة المرور">
-            <button onclick="startQuiz()">بدء الاختبار</button>
+            <button type="button" onclick="startQuiz()">بدء الاختبار</button>
         </div>
 
         <div class="quiz-container hidden" id="quizContainer">
@@ -150,19 +160,139 @@
         const database = firebase.database();
 
         // المتغيرات العامة
-        let questions = [];
+        //let questions = [];
         let userAnswers = [];
         let timeLeft = 600;
         let timer;
 
         // إنشاء الأسئلة
-        for (let i = 1; i <= 25; i++) {
-            questions.push({
-                question: `السؤال رقم ${i}`,
-                options: ['الخيار الأول', 'الخيار الثاني', 'الخيار الثالث', 'الخيار الرابع'],
-                correct: Math.floor(Math.random() * 4)
-            });
-        }
+		let questions = [
+    {
+        question: "1. Is a CT system equipped with multiple rows of CT detectors to create images of multiple sections?",
+        options: ["A. first generation", "B. sixth Generation", "C. Fourth Generation", "D. Fifth Generation", "E. seventh Generation"],
+        correct: 4 // E
+    },
+    {
+        question: "2. Regarding CT scan generations, which statement is correct?",
+        options: ["A. fifth generation uses helical scanning", "B. third generation uses translate rotate motion", "C. sixth generation uses electron beam x ray source", "D. seventh generation uses multiple rows of detectors", "E. fourth generation uses dual source energy"],
+        correct: 3 // D
+    },
+    {
+        question: "3. Differentiating between the calcifications and contrast material (iodine)?",
+        options: ["A. first generation", "B. second generation", "C. fourth generation", "D. seventh generation", "E. eighth generation"],
+        correct: 4 // E
+    },
+    {
+        question: "4. What is the working life of x ray tubes in helical CT scanners?",
+        options: ["A. About 10,000 to 40,000 hours", "B. About 1000 hours", "C. About 5,000 hours", "D. About 2,000 hours", "E. About 200 hours"],
+        correct: 0 // A
+    },
+    {
+        question: "5. Increasing the number of detector rows results in ……?",
+        options: ["A. increasing the z axis coverage slab thickness", "B. increasing the number of gantry rotations necessary to image the selected field", "C. increasing the strain on the x ray tube", "D. increasing scan length", "E. none of the above"],
+        correct: 0 // A
+    },
+    {
+        question: "6. Cone beam configuration is used in which generation?",
+        options: ["A. seventh generation", "B. fourth generation", "C. third generation", "D. second generation", "E. first generation"],
+        correct: 0 // A
+    },
+    {
+        question: "7. What is the primary difference between MSCT and SSCT?",
+        options: ["A. The gantry rotations", "B. The x ray tube", "C. The scan length", "D. The detector arrangement", "E. all of the above"],
+        correct: 3 // D
+    },
+    {
+        question: "8. Which type of detector arrays consist of parallel rows of equal thickness?",
+        options: ["A. Matrix detectors", "B. Selective detectors", "C. Hybrid detectors", "D. Linked detectors", "E. Adaptive array detectors"],
+        correct: 0 // A
+    },
+    {
+        question: "9. What is a disadvantage of cone-beam artifacts in MSCT?",
+        options: ["A. Cone beam artifact severity is directly proportional to the number of detector rows", "B. Cone beam artifacts result in consistent and identical images", "C. Cone beam artifacts are more pronounced in SSCT than in MSCT", "D. Cone beam artifacts can be reduced with wider x-ray beam widths", "E. Cone-shaped x ray beam sampling is the same at 0 and at 180 degrees"],
+        correct: 0 // A
+    },
+    {
+        question: "10. With the introduction of multiple detector arrays, what determines the slice thickness in CT scanners?",
+        options: ["A. The detector size", "B. The collimator", "C. The spatial resolution", "D. The x-ray tube", "E. The contrast resolution"],
+        correct: 0 // A
+    },
+    {
+        question: "11. In Dual Source CT, how many X-ray tubes and detector arrays are present?",
+        options: ["A. three", "B. two", "C. one", "D. four", "E. five"],
+        correct: 1 // B
+    },
+    {
+        question: "12. What is the key to high sensitivity and specificity in imaging with dual energy acquisition?",
+        options: ["A. Utilizing two detectors", "B. Rapid alternation between high and low kilovoltage settings", "C. X-ray tubes set at different energies", "D. Single source dual energy", "E. Using high energy electron beam"],
+        correct: 2 // C
+    },
+    {
+        question: "13. In DECT, how many images are acquired per location?",
+        options: ["A. three", "B. four", "C. one", "D. five", "E. two"],
+        correct: 4 // E
+    },
+    {
+        question: "14. What factors determine the degree of X-ray beam attenuation in a material?",
+        options: ["A. tissue composition and photon energy level", "B. exercise and diet", "C. body temperature and heart rate", "D. blood type and blood pressure", "E. water intake"],
+        correct: 0 // A
+    },
+    {
+        question: "15. What is the function of the collimators in CT scan?",
+        options: ["A. Rotate mounted scan frame that surrounds the patient", "B. Approach the patient from both the front and back", "C. Capture x-ray photons and convert them into electrical signals", "D. Convert the analog information into digital data", "E. Define slice thickness and restrict x-ray beam to the cross section of interest"],
+        correct: 4 // E
+    },
+    {
+        question: "16. In MSCT scanners, one disadvantage that summarized by one of the following:",
+        options: ["A. Less contrast resolution", "B. Partial volume streaking", "C. Less scan time for tissue imaging", "D. More radiation dose received by the patient", "E. more detector array consuming"],
+        correct: 3 // D
+    },
+    {
+        question: "17. In MS/MD CT, if each detector was 1.25 mm long and the scanner had 16 rows of detectors, the z axis coverage (slab thickness) per gantry rotation would total……mm?",
+        options: ["A. 10mm", "B. 30mm", "C. 20mm", "D. 50mm", "E. E-22m"],
+        correct: 2 // C
+    },
+    {
+        question: "18. The degree that a material will attenuate the X-ray beam is dependent on:",
+        options: ["A. density of the absorber", "B. radiation beam energy", "C. atomic number of the absorber", "D. A and B", "E. all of the above"],
+        correct: 4 // E
+    },
+    {
+        question: "19. Utilizes two X-ray tubes and two detectors to obtain simultaneous dual energy acquisition and data processing?",
+        options: ["A. Dual Source Dual Energy (DSDE)", "B. Dual Source Single Energy (DSSE)", "C. Single Source Dual Energy (SSDE)", "D. all of the above", "E. none of the above"],
+        correct: 0 // A
+    },
+    {
+        question: "20. In this mode, both X-ray tubes work at the same kVp setting?",
+        options: ["A. Dual Source Dual Energy (DSDE)", "B. Dual Source Single Energy (DSSE)", "C. Single Source Dual Energy (SSDE)", "D. all of the above", "E. none of the above"],
+        correct: 1 // B
+    },
+    {
+        question: "21. The…..equipped with two data measurement systems, that it is possible to double the resolution?",
+        options: ["A. SSCT", "B. MSCT", "C. EBSCT", "D. DSCT", "E. not all of the above"],
+        correct: 3 // D
+    },
+    {
+        question: "22. In….the slice thickness is determined by detector configuration and not x ray beam collimation?",
+        options: ["A. SSCT", "B. MSCT", "C. EBSCT", "D. Helical CT", "E. not all of the above"],
+        correct: 1 // B
+    },
+    {
+        question: "23. In (…..) X ray beam collimation was designed such that the z axis width of the x ray beam at the isocenter (center of rotation) was the desired slice thickness?",
+        options: ["A. SSCT", "B. MSCT", "C. EBSCT", "D. Helical CT", "E. not all of the above"],
+        correct: 1 // B
+    },
+    {
+        question: "24. Regarding types of detector arrays:",
+        options: ["A. Matrix detectors, which consist of parallel rows of equal thickness", "B. Hybrid detectors with smaller detector rows in the center", "C. Adaptive array detectors that consist of detector rows with varying thickness", "D. C and B", "E. all of the above"],
+        correct: 4 // E
+    },
+    {
+        question: "25. In MSCT, if the detector width is 5mm, beam width 20mm and the table moves 10mm during one tube rotation, what is the pitch?",
+        options: ["A. 2", "B. 1.5", "C. 2.5", "D. 1", "E. 0.5"],
+        correct: 4 // E
+    }
+	];
 
         // التحقق من الإكمال السابق
         if (localStorage.getItem('quizCompleted')) {
@@ -211,12 +341,12 @@
             }, 1000);
         }
 
-        function selectAnswer(qIndex, aIndex) {
-            const questionDiv = document.querySelectorAll('.question')[qIndex];
-            questionDiv.querySelectorAll('.option').forEach(opt => opt.classList.remove('selected'));
-            questionDiv.querySelectorAll('.option')[aIndex].classList.add('selected');
-            userAnswers[qIndex] = aIndex;
-        }
+function selectAnswer(qIndex, aIndex) {
+    const options = document.querySelectorAll(`.question:nth-child(${qIndex + 1}) .option`);
+    options.forEach(opt => opt.classList.remove('selected'));
+    options[aIndex].classList.add('selected');
+    userAnswers[qIndex] = aIndex;
+}
 
         async function submitQuiz() {
             clearInterval(timer);
