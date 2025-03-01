@@ -137,10 +137,9 @@
 
     <script>
         // إعدادات النظام
-        const CORRECT_PASSWORD = "2485";
-        const GITHUB_TOKEN = "YOUR_GITHUB_TOKEN";
-        const REPO_OWNER = "YOUR_GITHUB_USERNAME";
-        const REPO_NAME = "YOUR_REPO_NAME";
+const GITHUB_TOKEN = "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";
+const REPO_OWNER = "cammeral";
+const REPO_NAME = "testq";
         
         let questions = [];
         let userAnswers = [];
@@ -271,29 +270,70 @@
             };
 
             try {
-                const response = await fetch(
-                    `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/results.json`,
-                    {
-                        method: 'PUT',
-                        headers: {
-                            'Authorization': `token ${GITHUB_TOKEN}`,
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            message: 'New quiz result',
-                            content: btoa(JSON.stringify(data)),
-                            sha: localStorage.getItem('fileSha')
-                        })
-                    }
-                );
-                
-                const result = await response.json();
-                localStorage.setItem('fileSha', result.content.sha);
-                console.log('تم الحفظ بنجاح:', result);
-            } catch (error) {
-                console.error('خطأ في الحفظ:', error);
+                  const getResponse = await fetch(
+            `https://api.github.com/repos/${cammeral}/${testq}/contents/results.json`,
+            {
+                headers: {
+                    'Authorization': `token ${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}`
+					'Accept': 'application/vnd.github.v3+json'
+                }
             }
+        );
+        
+            if (!getResponse.ok) {
+            throw new Error('Failed to fetch existing data');
         }
+        
+        const existingData = await getResponse.json();
+        
+        // فك تشفير المحتوى
+        const currentContent = JSON.parse(atob(existingData.content));
+        
+        // إضافة النتيجة الجديدة
+        const newResult = {
+            id: Date.now(),
+            username,
+            score,
+            timestamp: new Date().toISOString(),
+            answers: userAnswers
+        };
+        
+        const updatedContent = [...currentContent, newResult];
+        
+        // رفع الملف المحدث
+        const putResponse = await fetch(
+            `https://api.github.com/repos/${cammeral}/${testq}/contents/results.json`,
+            {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `token ${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}`,
+                    'Accept': 'application/vnd.github.v3+json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    message: 'New student result',
+                    content: btoa(JSON.stringify(updatedContent)),
+                    sha: existingData.sha
+                })
+            }
+        );
+        
+        if (!putResponse.ok) {
+            throw new Error('Failed to update file');
+        }
+        
+        console.log('تم الحفظ بنجاح');
+    } catch (error) {
+        console.error('خطأ في الحفظ:', error);
+        alert('حدث خطأ في حفظ النتائج!');
+    }
+}
+        
+        console.log('تم الحفظ بنجاح:', await putResponse.json());
+    } catch (error) {
+        console.error('خطأ في الحفظ:', error);
+    }
+}
 
         function captureResult() {
             html2canvas(document.getElementById('resultSection')).then(canvas => {
