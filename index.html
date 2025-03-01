@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>نظام الاختبارات الإلكتروني</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
+    <style>
+        :root {
+            --primary-color: #2A5C82;
+            --secondary-color: #38A3A5;
+            --success-color: #57CC99;
+            --danger-color: #FF6B6B;
+            --light-color: #F8F9FA;
+            --dark-color: #343A40;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Cairo', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(45deg, #e3f2fd, #f3e5f5);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .login-form, .quiz-container, .result {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 20px;
+            margin: 10px 0;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        button {
+            background: var(--primary-color);
+            color: white;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            display: block;
+            margin: 20px auto;
+        }
+
+        .question {
+            margin: 20px 0;
+            padding: 15px;
+            border-left: 4px solid var(--primary-color);
+            background: var(--light-color);
+        }
+
+        .option {
+            padding: 10px;
+            margin: 5px 0;
+            cursor: pointer;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .selected {
+            background: var(--success-color) !important;
+            color: white;
+        }
+
+        .timer {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: white;
+            padding: 10px 20px;
+            border-radius: 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .answer-report {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+        }
+
+        .correct-answer {
+            color: #57CC99;
+            font-weight: bold;
+        }
+
+        .user-answer {
+            color: #2A5C82;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="login-form" id="loginForm">
+            <h2>تسجيل الدخول</h2>
+            <input type="text" id="username" placeholder="اسم المستخدم">
+            <input type="password" id="password" placeholder="كلمة المرور">
+            <button onclick="startQuiz()">بدء الاختبار</button>
+        </div>
+
+        <div class="quiz-container hidden" id="quizContainer">
+            <div id="questions"></div>
+            <button onclick="submitQuiz()">إنهاء الاختبار</button>
+        </div>
+
+        <div class="result hidden" id="resultSection"></div>
+        <div class="timer hidden" id="timer">10:00</div>
+    </div>
+
+    <script>
+        // الثوابت والإعدادات
+        const CORRECT_PASSWORD = "2485";
+        const firebaseConfig = {
+            apiKey: "AIzaSyBNBPYkYxOOf_p4IdV2GFtT6ovrsGWgsrY", // استبدل بقيمك
+            authDomain: "student-results-app-1be4e.firebaseapp.com",
+            databaseURL: "https://student-results-app-1be4e-default-rtdb.firebaseio.com",
+            projectId: "student-results-app-1be4e",
+            storageBucket: "student-results-app-1be4e.firebasestorage.app",
+            messagingSenderId: "999964098772",
+            appId: "1:999964098772:web:8e34ed3c211bffe33f7b41"
+        };
+
+        // تهيئة Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        // المتغيرات العامة
+        let questions = [];
+        let userAnswers = [];
+        let timeLeft = 600;
+        let timer;
+
+        // إنشاء الأسئلة
+        for (let i = 1; i <= 25; i++) {
+            questions.push({
+                question: `السؤال رقم ${i}`,
+                options: ['الخيار الأول', 'الخيار الثاني', 'الخيار الثالث', 'الخيار الرابع'],
+                correct: Math.floor(Math.random() * 4)
+            });
+        }
+
+        // التحقق من الإكمال السابق
+        if (localStorage.getItem('quizCompleted')) {
+            document.getElementById('loginForm').innerHTML = `
+                <h2 style="color:${getComputedStyle(document.documentElement).getPropertyValue('--danger-color')}">
+                    لقد أكملت الاختبار مسبقًا
+                </h2>
+                <p>لا يمكن إعادة المحاولة</p>
+            `;
+        }
+
+        function startQuiz() {
+            const password = document.getElementById('password').value;
+            if (password !== CORRECT_PASSWORD) {
+                alert('كلمة المرور غير صحيحة!');
+                return;
+            }
+
+            document.getElementById('loginForm').classList.add('hidden');
+            document.getElementById('quizContainer').classList.remove('hidden');
+            document.getElementById('timer').classList.remove('hidden');
+            
+            userAnswers = new Array(questions.length).fill(-1);
+            
+            let html = '';
+            questions.forEach((q, index) => {
+                html += `
+                    <div class="question">
+                        <h4>${q.question}</h4>
+                        ${q.options.map((opt, i) => `
+                            <div class="option" onclick="selectAnswer(${index}, ${i})">${opt}</div>
+                        `).join('')}
+                    </div>
+                `;
+            });
+            document.getElementById('questions').innerHTML = html;
+
+            timer = setInterval(() => {
+                timeLeft--;
+                const minutes = Math.floor(timeLeft / 60);
+                const seconds = timeLeft % 60;
+                document.getElementById('timer').textContent = 
+                    `${minutes}:${seconds.toString().padStart(2, '0')}`;
+
+                if (timeLeft <= 0) submitQuiz();
+            }, 1000);
+        }
+
+        function selectAnswer(qIndex, aIndex) {
+            const questionDiv = document.querySelectorAll('.question')[qIndex];
+            questionDiv.querySelectorAll('.option').forEach(opt => opt.classList.remove('selected'));
+            questionDiv.querySelectorAll('.option')[aIndex].classList.add('selected');
+            userAnswers[qIndex] = aIndex;
+        }
+
+        async function submitQuiz() {
+            clearInterval(timer);
+            localStorage.setItem('quizCompleted', 'true');
+
+            const score = userAnswers.reduce((acc, answer, index) => 
+                answer === questions[index].correct ? acc + 1 : acc, 0);
+            
+            const totalScore = ((score / questions.length) * 25).toFixed(1);
+            const username = document.getElementById('username').value;
+
+            // حفظ النتائج في Firebase
+            try {
+                await database.ref('results').push({
+                    username: username,
+                    score: totalScore,
+                    answers: userAnswers,
+                    timestamp: new Date().toISOString()
+                });
+                console.log('تم الحفظ بنجاح');
+            } catch (error) {
+                console.error('حدث خطأ في الحفظ:', error);
+            }
+
+            // عرض النتيجة
+            let answersReport = '';
+            questions.forEach((q, index) => {
+                const userAnswer = userAnswers[index] !== -1 ? 
+                    q.options[userAnswers[index]] : 'لم يتم الإجابة';
+                const correctAnswer = q.options[q.correct];
+                
+                answersReport += `
+                    <div class="answer-report">
+                        <h4>${q.question}</h4>
+                        <p class="user-answer">إجابتك: ${userAnswer}</p>
+                        <p class="correct-answer">الإجابة الصحيحة: ${correctAnswer}</p>
+                    </div>
+                `;
+            });
+
+            const resultHTML = `
+                <h2>النتيجة النهائية</h2>
+                <p>الاسم: ${username}</p>
+                <p>الدرجة: ${totalScore}/25</p>
+                ${totalScore >= 20 ? 
+                    '<p style="color:green">أنت وحش! جائزتك 1000 دينار</p>' : 
+                    totalScore >= 12.5 ? 
+                    '<p style="color:blue">مبروك! نجحت في الاختبار</p>' : 
+                    '<p style="color:red">اقرأ وين يالكسلان</p>'}
+                <hr>
+                <h3>تفاصيل الإجابات:</h3>
+                ${answersReport}
+                <button onclick="captureResult()">حفظ النتيجة</button>
+            `;
+
+            document.getElementById('resultSection').innerHTML = resultHTML;
+            document.getElementById('quizContainer').classList.add('hidden');
+            document.getElementById('resultSection').classList.remove('hidden');
+        }
+
+        function captureResult() {
+            html2canvas(document.getElementById('resultSection')).then(canvas => {
+                const link = document.createElement('a');
+                link.download = 'نتيجة-الاختبار.png';
+                link.href = canvas.toDataURL();
+                link.click();
+            });
+        }
+    </script>
+</body>
+</html>
