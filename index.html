@@ -261,63 +261,6 @@ const REPO_NAME = "testq";
             await saveResultsToGitHub(username, totalScore);
         }
 
-async function saveResultsToGitHub(username, score) {
-    try {
-        // الخطوة 1: جلب البيانات الحالية
-        const getResponse = await fetch(
-            `https://api.github.com/repos/cammeral/testq/contents/results.json`,
-            {
-                headers: {
-                    'Authorization': `token ${GITHUB_TOKEN}`,
-                    'Accept': 'application/vnd.github.v3.raw'
-                }
-            }
-        );
-        
-        if (!getResponse.ok) throw new Error('فشل في جلب الملف');
-        
-        const existingContent = await getResponse.json();
-        const currentData = Array.isArray(existingContent) ? existingContent : [];
-
-        // الخطوة 2: إضافة البيانات الجديدة
-        const newEntry = {
-            id: Date.now(),
-            username,
-            score,
-            timestamp: new Date().toISOString(),
-            answers: userAnswers
-        };
-
-        const updatedData = [...currentData, newEntry];
-
-        // الخطوة 3: الحصول على SHA للملف
-        const shaResponse = await fetch(
-            `https://api.github.com/repos/cammeral/testq/contents/results.json`,
-            {
-                headers: {
-                    'Authorization': `token ${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}`,
-                    'Accept': 'application/vnd.github.v3+json'
-                }
-            }
-        );
-        const shaData = await shaResponse.json();
-
-        // الخطوة 4: رفع البيانات المحدثة
-        const putResponse = await fetch(
-            `https://api.github.com/repos/cammeral/testq/contents/results.json`,
-            {
-                method: 'PUT',
-                headers: {
-                    'Authorization': `token ${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}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    message: 'Update results',
-                    content: btoa(JSON.stringify(updatedData)),
-                    sha: shaData.sha
-                })
-            }
-        );
 
         if (!putResponse.ok) throw new Error('فشل في الحفظ');
         
