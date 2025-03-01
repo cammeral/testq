@@ -7,6 +7,8 @@
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
     <style>
         :root {
             --primary-color: #2A5C82;
@@ -138,6 +140,9 @@
     </div>
 
     <script>
+
+        const CORRECT_PASSWORD = "2485";
+        
         // ⚠️ استبدل بإعدادات Firebase الخاصة بك
         const firebaseConfig = {
             apiKey: "AIzaSyBNBPYkYxOOf_p4IdV2GFtT6ovrsGWgsrY",
@@ -154,7 +159,7 @@
         const database = firebase.database();
 
         // إعدادات النظام
-        const CORRECT_PASSWORD = "2485";
+        //const CORRECT_PASSWORD = "2485";
         let questions = [];
         let userAnswers = [];
         let timeLeft = 600;
