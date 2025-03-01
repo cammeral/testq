@@ -240,15 +240,19 @@
 
             // حفظ النتائج في Firebase
             try {
-                await database.ref('results').push({
-                    username: username,
-                    score: totalScore,
-                    answers: userAnswers,
-                    timestamp: new Date().toISOString()
-                });
-            } catch (error) {
-                console.error('حدث خطأ في الحفظ:', error);
-            }
+        const newResultRef = await database.ref('results').push({
+            username: username,
+            score: totalScore,
+            answers: userAnswers,
+            timestamp: new Date().toISOString()
+        });
+        
+        console.log('تم الحفظ بنجاح تحت المسار:', newResultRef.key); // إضافة هذا السطر
+        alert('تم حفظ النتيجة في Firebase!');
+    } catch (error) {
+        console.error('حدث خطأ في الحفظ:', error);
+        alert('فشل في الحفظ! راجع الكونسول (F12)');
+    }
 
             // عرض النتيجة
             let answersReport = '';
