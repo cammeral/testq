@@ -137,9 +137,10 @@
 
     <script>
         // إعدادات النظام
-const GITHUB_TOKEN = "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";
-const REPO_OWNER = "cammeral";
-const REPO_NAME = "testq";
+        const CORRECT_PASSWORD = "2485";
+        const GITHUB_TOKEN = "YOUR_GITHUB_TOKEN";
+        const REPO_OWNER = "YOUR_GITHUB_USERNAME";
+        const REPO_NAME = "YOUR_REPO_NAME";
         
         let questions = [];
         let userAnswers = [];
@@ -261,32 +262,38 @@ const REPO_NAME = "testq";
             await saveResultsToGitHub(username, totalScore);
         }
 
+        async function saveResultsToGitHub(username, score) {
+            const data = {
+                username: username,
+                score: score,
+                timestamp: new Date().toISOString(),
+                answers: userAnswers
+            };
 
-        if (!putResponse.ok) throw new Error('فشل في الحفظ');
-        
-        console.log('تم الحفظ بنجاح!');
-    } catch (error) {
-        console.error('Error:', error);
-        alert('حدث خطأ! راجع الكونسول.');
-    }
-}
-        
-        if (!putResponse.ok) {
-            throw new Error('Failed to update file');
+            try {
+                const response = await fetch(
+                    `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/results.json`,
+                    {
+                        method: 'PUT',
+                        headers: {
+                            'Authorization': `token ${GITHUB_TOKEN}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            message: 'New quiz result',
+                            content: btoa(JSON.stringify(data)),
+                            sha: localStorage.getItem('fileSha')
+                        })
+                    }
+                );
+                
+                const result = await response.json();
+                localStorage.setItem('fileSha', result.content.sha);
+                console.log('تم الحفظ بنجاح:', result);
+            } catch (error) {
+                console.error('خطأ في الحفظ:', error);
+            }
         }
-        
-        console.log('تم الحفظ بنجاح');
-    } catch (error) {
-        console.error('خطأ في الحفظ:', error);
-        alert('حدث خطأ في حفظ النتائج!');
-    }
-}
-        
-        console.log('تم الحفظ بنجاح:', await putResponse.json());
-    } catch (error) {
-        console.error('خطأ في الحفظ:', error);
-    }
-}
 
         function captureResult() {
             html2canvas(document.getElementById('resultSection')).then(canvas => {
