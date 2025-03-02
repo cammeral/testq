@@ -8,239 +8,120 @@
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
     <style>
-        :root {
-        --primary-color: #2A5C82;
-        --secondary-color: #38A3A5;
-        --success-color: #57CC99;
-        --danger-color: #FF6B6B;
-        --gradient-1: #2c3e50;
-        --gradient-2: #3498db;
-        --text-color: #2c3e50;
-    }
+    :root {
+           --primary-color: #2A5C82;
+            --secondary-color: #38A3A5;
+            --success-color: #57CC99;
+            --danger-color: #FF6B6B;
+            --light-color: #F8F9FA;
+            --dark-color: #343A40;
+        }
 
-    * {
-        box-sizing: border-box;
-        font-family: 'Cairo', sans-serif;
-        transition: all 0.3s ease;
-    }
+        * {
+            box-sizing: border-box;
+            font-family: 'Cairo', sans-serif;
+        }
 
-    body {
-        background: linear-gradient(135deg, var(--gradient-1), var(--gradient-2));
-        min-height: 100vh;
-        padding: 30px;
-        color: var(--text-color);
-    }
-
-    .container {
-        max-width: 800px;
-        margin: 0 auto;
-        animation: fadeIn 0.5s ease;
-    }
-
-    .login-form, .quiz-container, .result {
-        background: rgba(255, 255, 255, 0.95);
-        border-radius: 20px;
-        box-shadow: 0 15px 35px rgba(0,0,0,0.2);
-        padding: 40px;
-        margin-bottom: 30px;
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255,255,255,0.3);
-    }
-
-    .hidden {
-        opacity: 0;
-        pointer-events: none;
-        transform: translateY(20px);
-    }
-
-    input {
-        width: 100%;
-        padding: 15px 25px;
-        margin: 15px 0;
-        border: 2px solid #e0e0e0;
-        border-radius: 12px;
-        font-size: 16px;
-        background: #f8f9fa;
-    }
-
-    input:focus {
-        border-color: var(--secondary-color);
-        box-shadow: 0 0 10px rgba(56, 163, 165, 0.2);
-        outline: none;
-    }
-
-    button {
-        background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
-        color: white;
-        padding: 18px 45px;
-        border: none;
-        border-radius: 50px;
-        font-size: 18px;
-        cursor: pointer;
-        margin: 25px auto;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-        position: relative;
-        overflow: hidden;
-    }
-
-    button:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(0,0,0,0.3);
-    }
-
-    button:active {
-        transform: translateY(0);
-    }
-
-    .question {
-        margin: 25px 0;
-        padding: 25px;
-        background: #ffffff;
-        border-radius: 15px;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.08);
-        border-left: 5px solid var(--primary-color);
-    }
-
-    .option {
-        padding: 15px 20px;
-        margin: 10px 0;
-        cursor: pointer;
-        border: 2px solid #e0e0e0;
-        border-radius: 10px;
-        background: #f8f9fa;
-        position: relative;
-    }
-
-    .option:hover {
-        transform: translateX(10px);
-        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        border-color: var(--secondary-color);
-    }
-
-    .selected {
-        background: var(--success-color) !important;
-        color: white !important;
-        border-color: transparent !important;
-        animation: pulse 1s infinite;
-    }
-
-    .timer {
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        background: rgba(255,255,255,0.9);
-        padding: 15px 30px;
-        border-radius: 30px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-        font-size: 24px;
-        font-weight: 700;
-        color: var(--primary-color);
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-
-    .answer-report {
-        border: 2px solid #e0e0e0;
-        padding: 20px;
-        margin: 15px 0;
-        border-radius: 12px;
-        background: #fff;
-    }
-
-    .correct-answer {
-        color: var(--success-color);
-        font-weight: 700;
-        font-size: 1.1em;
-    }
-
-    .user-answer {
-        color: var(--primary-color);
-        font-weight: 700;
-        font-size: 1.1em;
-    }
-
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(20px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-
-    @keyframes pulse {
-        0% { transform: scale(1); }
-        50% { transform: scale(1.02); }
-        100% { transform: scale(1); }
-    }
-
-    @media (max-width: 768px) {
         body {
-            padding: 15px;
+            background: linear-gradient(45deg, #e3f2fd, #f3e5f5);
+            min-height: 100vh;
+            padding: 20px;
+			text-align: left;
+            font-family: 'Arial', sans-serif;
         }
-        
+
         .container {
-            max-width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
         }
+
+        .login-form, .quiz-container, .result {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 20px;
+            margin: 10px 0;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        button {
+            background: var(--primary-color);
+            color: white;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            display: block;
+            margin: 20px auto;
+        }
+
+        .question {
+            margin: 20px 0;
+            padding: 15px;
+            border-left: none;
+            background: var(--light-color);
+			border-right: 4px solid #2A5C82;
+
+        }
+
+        .option {
+            padding: 10px;
+            margin: 5px 0;
+            cursor: pointer;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+        }
+
         
-        .timer {
-            font-size: 18px;
-            padding: 10px 20px;
+        .option:hover {
+            transform: translateX(-10px);
         }
 		
-		/* أنماط العيون المعدلة */
-.eyes-container {
-    position: absolute;
-    top: -80px;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    gap: 15px;
-    z-index: 1000;
-}
+        .selected {
+            background: var(--success-color) !important;
+            color: white;
+        }
 
-.eye {
-    width: 40px;
-    height: 40px;
-    background: #fff;
-    border-radius: 50%;
-    position: relative;
-    overflow: hidden;
-    box-shadow: 0 0 15px rgba(0,0,0,0.1);
-    border: 2px solid var(--primary-color);
-}
+        .timer {
+            position: fixed;
+            top: 20px;
+            left: auto;
+            background: white;
+            padding: 10px 20px;
+            border-radius: 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+			right: 20px;
+        }
 
-.pupil {
-    width: 15px;
-    height: 15px;
-    background: var(--primary-color);
-    border-radius: 50%;
-    position: absolute;
-    transition: all 0.2s ease;
-}
+        .answer-report {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+        }
 
-/* تفاعلات العيون */
-.eye-sad .pupil {
-    transform: translate(-50%, -50%) translateY(10px);
-    height: 5px;
-    border-radius: 10px;
-}
+        .correct-answer {
+            color: #57CC99;
+            font-weight: bold;
+        }
 
-.eye-happy {
-    animation: eyeHappy 0.5s ease;
-}
-
-@keyframes eyeHappy {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.2) rotate(10deg); }
-    100% { transform: scale(1); }
-}
-
-.eye-blink {
-    animation: eyeBlink 0.3s ease;
-}
-
-@keyframes eyeBlink {
-    0%, 100% { height: 40px; }
-    50% { height: 5px; }
-}
+        .user-answer {
+            color: #2A5C82;
+            font-weight: bold;
+        }
 
     </style>
 </head>
