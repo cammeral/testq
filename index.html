@@ -9,124 +9,252 @@
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
     <style>
         :root {
-            --primary-color: #2A5C82;
-            --secondary-color: #38A3A5;
-            --success-color: #57CC99;
-            --danger-color: #FF6B6B;
-            --light-color: #F8F9FA;
-            --dark-color: #343A40;
-        }
+        --primary-color: #2A5C82;
+        --secondary-color: #38A3A5;
+        --success-color: #57CC99;
+        --danger-color: #FF6B6B;
+        --gradient-1: #2c3e50;
+        --gradient-2: #3498db;
+        --text-color: #2c3e50;
+    }
 
-        * {
-            box-sizing: border-box;
-            font-family: 'Cairo', sans-serif;
-        }
+    * {
+        box-sizing: border-box;
+        font-family: 'Cairo', sans-serif;
+        transition: all 0.3s ease;
+    }
 
+    body {
+        background: linear-gradient(135deg, var(--gradient-1), var(--gradient-2));
+        min-height: 100vh;
+        padding: 30px;
+        color: var(--text-color);
+    }
+
+    .container {
+        max-width: 800px;
+        margin: 0 auto;
+        animation: fadeIn 0.5s ease;
+    }
+
+    .login-form, .quiz-container, .result {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 20px;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+        padding: 40px;
+        margin-bottom: 30px;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255,255,255,0.3);
+    }
+
+    .hidden {
+        opacity: 0;
+        pointer-events: none;
+        transform: translateY(20px);
+    }
+
+    input {
+        width: 100%;
+        padding: 15px 25px;
+        margin: 15px 0;
+        border: 2px solid #e0e0e0;
+        border-radius: 12px;
+        font-size: 16px;
+        background: #f8f9fa;
+    }
+
+    input:focus {
+        border-color: var(--secondary-color);
+        box-shadow: 0 0 10px rgba(56, 163, 165, 0.2);
+        outline: none;
+    }
+
+    button {
+        background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+        color: white;
+        padding: 18px 45px;
+        border: none;
+        border-radius: 50px;
+        font-size: 18px;
+        cursor: pointer;
+        margin: 25px auto;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        position: relative;
+        overflow: hidden;
+    }
+
+    button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+    }
+
+    button:active {
+        transform: translateY(0);
+    }
+
+    .question {
+        margin: 25px 0;
+        padding: 25px;
+        background: #ffffff;
+        border-radius: 15px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        border-left: 5px solid var(--primary-color);
+    }
+
+    .option {
+        padding: 15px 20px;
+        margin: 10px 0;
+        cursor: pointer;
+        border: 2px solid #e0e0e0;
+        border-radius: 10px;
+        background: #f8f9fa;
+        position: relative;
+    }
+
+    .option:hover {
+        transform: translateX(10px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        border-color: var(--secondary-color);
+    }
+
+    .selected {
+        background: var(--success-color) !important;
+        color: white !important;
+        border-color: transparent !important;
+        animation: pulse 1s infinite;
+    }
+
+    .timer {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: rgba(255,255,255,0.9);
+        padding: 15px 30px;
+        border-radius: 30px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        font-size: 24px;
+        font-weight: 700;
+        color: var(--primary-color);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .answer-report {
+        border: 2px solid #e0e0e0;
+        padding: 20px;
+        margin: 15px 0;
+        border-radius: 12px;
+        background: #fff;
+    }
+
+    .correct-answer {
+        color: var(--success-color);
+        font-weight: 700;
+        font-size: 1.1em;
+    }
+
+    .user-answer {
+        color: var(--primary-color);
+        font-weight: 700;
+        font-size: 1.1em;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.02); }
+        100% { transform: scale(1); }
+    }
+
+    @media (max-width: 768px) {
         body {
-            background: linear-gradient(45deg, #e3f2fd, #f3e5f5);
-            min-height: 100vh;
-            padding: 20px;
-			text-align: left;
-            font-family: 'Arial', sans-serif;
-        }
-
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-        }
-
-        .login-form, .quiz-container, .result {
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            padding: 30px;
-            margin-bottom: 30px;
-        }
-
-        .hidden {
-            display: none;
-        }
-
-        input {
-            width: 100%;
-            padding: 12px 20px;
-            margin: 10px 0;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            font-size: 16px;
-        }
-
-        button {
-            background: var(--primary-color);
-            color: white;
-            padding: 15px 40px;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            cursor: pointer;
-            display: block;
-            margin: 20px auto;
-        }
-
-        .question {
-            margin: 20px 0;
             padding: 15px;
-            border-left: none;
-            background: var(--light-color);
-			border-right: 4px solid #2A5C82;
-
         }
-
-        .option {
-            padding: 10px;
-            margin: 5px 0;
-            cursor: pointer;
-            border: 2px solid #ddd;
-            border-radius: 5px;
-        }
-
         
-        .option:hover {
-            transform: translateX(-10px);
+        .container {
+            max-width: 100%;
+        }
+        
+        .timer {
+            font-size: 18px;
+            padding: 10px 20px;
         }
 		
-        .selected {
-            background: var(--success-color) !important;
-            color: white;
-        }
+		/* أنماط العيون المعدلة */
+.eyes-container {
+    position: absolute;
+    top: -80px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 15px;
+    z-index: 1000;
+}
 
-        .timer {
-            position: fixed;
-            top: 20px;
-            left: auto;
-            background: white;
-            padding: 10px 20px;
-            border-radius: 30px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-			right: 20px;
-        }
+.eye {
+    width: 40px;
+    height: 40px;
+    background: #fff;
+    border-radius: 50%;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    border: 2px solid var(--primary-color);
+}
 
-        .answer-report {
-            border: 1px solid #ddd;
-            padding: 15px;
-            margin: 10px 0;
-            border-radius: 8px;
-        }
+.pupil {
+    width: 15px;
+    height: 15px;
+    background: var(--primary-color);
+    border-radius: 50%;
+    position: absolute;
+    transition: all 0.2s ease;
+}
 
-        .correct-answer {
-            color: #57CC99;
-            font-weight: bold;
-        }
+/* تفاعلات العيون */
+.eye-sad .pupil {
+    transform: translate(-50%, -50%) translateY(10px);
+    height: 5px;
+    border-radius: 10px;
+}
 
-        .user-answer {
-            color: #2A5C82;
-            font-weight: bold;
-        }
+.eye-happy {
+    animation: eyeHappy 0.5s ease;
+}
+
+@keyframes eyeHappy {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.2) rotate(10deg); }
+    100% { transform: scale(1); }
+}
+
+.eye-blink {
+    animation: eyeBlink 0.3s ease;
+}
+
+@keyframes eyeBlink {
+    0%, 100% { height: 40px; }
+    50% { height: 5px; }
+}
+
     </style>
 </head>
 <body>
     <div class="container">
         <div class="login-form" id="loginForm">
+		    <div class="eyes-container" id="eyes">
+        <div class="eye">
+            <div class="pupil"></div>
+        </div>
+        <div class="eye">
+            <div class="pupil"></div>
+        </div>
+    </div>
             <h2>تسجيل الدخول</h2>
             <input type="text" id="username" placeholder="اسم المستخدم">
             <input type="password" id="password" placeholder="كلمة المرور">
@@ -139,8 +267,10 @@
         </div>
 
         <div class="result hidden" id="resultSection"></div>
-        <div class="timer hidden" id="timer">10:00</div>
+        <div class="timer hidden" id="timer">30:00</div>
     </div>
+
+
 
     <script>
         // الثوابت والإعدادات
@@ -162,155 +292,380 @@
         // المتغيرات العامة
         //let questions = [];
         let userAnswers = [];
-        let timeLeft = 600;
+        let timeLeft = 1800;
         let timer;
 
         // إنشاء الأسئلة
 		let questions = [
+
     {
-        question: "1. Is a CT system equipped with multiple rows of CT detectors to create images of multiple sections?",
-        options: ["A. first generation", "B. sixth Generation", "C. Fourth Generation", "D. Fifth Generation", "E. seventh Generation"],
-        correct: 4 // E
+        question: "1. The scanner based on slip-ring technology is:",
+        options: ["A. Sixth-generation scanner", "B. Seventh-generation scanner", "C. Eighth-generation scanner", "D. All of the above", "E. Only A & B"],
+        correct: 0 // A
     },
     {
-        question: "2. Regarding CT scan generations, which statement is correct?",
-        options: ["A. fifth generation uses helical scanning", "B. third generation uses translate rotate motion", "C. sixth generation uses electron beam x ray source", "D. seventh generation uses multiple rows of detectors", "E. fourth generation uses dual source energy"],
+        question: "2. In this technique, the data are continuously acquired or collected without pausing while the patient is simultaneously transported at a constant speed through the gantry.",
+        options: ["A. First generation", "B. Sixth Generation", "C. Fourth Generation", "D. Fifth Generation", "E. Second Generation"],
+        correct: 1 // B
+    },
+    {
+        question: "3. What are the technical developments required in the sixth generation?",
+        options: ["A. Slip ring technology", "B. High power x-ray tubes", "C. Interpolation algorithms", "D. All of the above", "E. A and C"],
         correct: 3 // D
     },
     {
-        question: "3. Differentiating between the calcifications and contrast material (iodine)?",
-        options: ["A. first generation", "B. second generation", "C. fourth generation", "D. seventh generation", "E. eighth generation"],
+        question: "4. All generations of CT scanners except (…..) required winding and unwinding of connection cables causing inter-scan delays.",
+        options: ["A. First generation", "B. Sixth Generation", "C. Fourth Generation", "D. Fifth Generation", "E. Second Generation"],
+        correct: 2 // C
+    },
+    {
+        question: "5. Eliminating interscan delays made possible by (…..) technique.",
+        options: ["A. Slip ring technology", "B. High power x-ray tubes", "C. Interpolation algorithms", "D. Electron beam", "E. Not all of the above"],
+        correct: 0 // A
+    },
+    {
+        question: "6. In high power x-ray tubes, largest heat capacities are achieved with:",
+        options: ["A. Thick graphite backing of target disks", "B. Anode diameters of 200mm or more", "C. Metal housing with ceramic insulator", "D. Oil-cooled anode", "E. All of the above"],
         correct: 4 // E
     },
     {
-        question: "4. What is the working life of x ray tubes in helical CT scanners?",
+        question: "7. What are the advantages of helical CT scanner?",
+        options: ["A. Fast scan times and large volume of data collected", "B. Minimizes motion artifacts", "C. Enhanced multiplanar or 3D renderings", "D. Improved temporal resolution", "E. All of the above"],
+        correct: 4 // E
+    },
+    {
+        question: "8. An electromechanical device made up of rings and brushes to transmit electricity across a rotating interface is called:",
+        options: ["A. Target rings", "B. Helical rings", "C. Spiral rings", "D. Slip rings", "E. Stationary ring"],
+        correct: 3 // D
+    },
+    {
+        question: "9. How was the patient scanned in conventional CT (third and fourth-generation CT scanners)?",
+        options: ["A. Slice-by-slice", "B. Continuously", "C. Layer-by-layer", "D. Simultaneously", "E. Randomly"],
+        correct: 0 // A
+    },
+    {
+        question: "10. What was the main goal of developing a technique involving continuous movement of the patient through the gantry?",
+        options: ["A. To decrease spatial resolution", "B. To increase radiation dose", "C. To improve temporal resolution", "D. To reduce coverage area", "E. To enhance image contrast"],
+        correct: 2 // C
+    },
+    {
+        question: "11. What is the rate of revolution for the x-ray tube and detector in helical CT scanning?",
+        options: ["A. One revolution per minute", "B. One revolution per second", "C. One revolution per hour", "D. Two revolutions per second", "E. Variable"],
+        correct: 4 // E
+    },
+    {
+        question: "12. What technological development is NOT required for the helical CT scanning technique?",
+        options: ["A. Slip ring technology", "B. High-power x-ray tubes", "C. Interpolation algorithms", "D. Parallel-beam geometry", "E. Variable"],
+        correct: 3 // D
+    },
+    {
+        question: "13. How does the helical CT scanning technique improve volume coverage speed performance?",
+        options: ["A. By decreasing duty cycle", "B. By increasing patient movement speed", "C. By improving slip ring technology", "D. By allowing fast and continuous data acquisition", "E. By reducing x-ray tube rotation speed"],
+        correct: 3 // D
+    },
+    {
+        question: "14. How does the slip ring technique enable continuous rotation in CT scanners?",
+        options: ["A. By eliminating connection cables", "B. By providing fixed connections", "C. By winding and unwinding cables", "D. By transmitting data wirelessly", "E. By passing electrical power without fixed connections"],
+        correct: 4 // E
+    },
+    {
+        question: "15. In helical CT, pitch is defined as:",
+        options: ["A. Table movement in 360 degrees/beam width", "B. Patient dose in 360 degrees / beam width", "C. Reconstructed slice thickness/beam width", "D. Gantry angle with respect to the scan axis", "E. Beam width/table movement in 360 degrees"],
+        correct: 0 // A
+    },
+    {
+        question: "16. What process is performed by a special computer program in helical CT?",
+        options: ["A. Interpolation algorithm", "B. Extrapolation algorithm", "C. Smoothing algorithm", "D. Enhancement algorithm", "E. Reduction algorithm"],
+        correct: 0 // A
+    },
+    {
+        question: "17. What is interpolation essentially in the context of helical CT scanning?",
+        options: ["A. Weighted average of data", "B. Simple addition of data", "C. Multiplication of data", "D. Subtraction of data", "E. Division of data"],
+        correct: 0 // A
+    },
+    {
+        question: "18. In helical CT, what is a key issue with the continuous tube and table motion?",
+        options: ["A. Projections do not lie in a single plane", "B. Projections are too sharp", "C. Projections are too blurry", "D. Projections overlap too much", "E. Projections are missing"],
+        correct: 0 // A
+    },
+    {
+        question: "19. If the pitch is less than 1, what is the relationship between the coils of the helix?",
+        options: ["A. Coils of the helix overlap", "B. Coils of the helix are separated", "C. Coils of the helix are in contact", "D. Coils are compressed", "E. Coils are twisted"],
+        correct: 0 // A
+    },
+    {
+        question: "20. How is pitch calculated in helical CT?",
+        options: ["A. Beam width divided by table travel", "B. Table travel per rotation divided by section thickness", "C. Table travel per rotation divided by beam width", "D. Section thickness divided by table travel", "E. Beam width divided by section thickness"],
+        correct: 2 // C
+    },
+    {
+        question: "21. What happens when the pitch is 0.75 and the beam width is 10 cm?",
+        options: ["A. The table moves 7.5 cm per rotation", "B. The table moves 15 cm per rotation", "C. The table moves 5 cm per rotation", "D. The table moves 20 cm per rotation", "E. The table does not move"],
+        correct: 0 // A
+    },
+    {
+        question: "22. In helical CT, what is the relation between the interpolation algorithm and pitch?",
+        options: ["A. The interpolation algorithm decreases as pitch increases", "B. No need for interpolation algorithm, the reconstructed images are axial", "C. The interpolation algorithm increases as pitch increases", "D. The interpolation algorithm increases as pitch decreases", "E. There is no relation, both not affected by the other"],
+        correct: 2 // C
+    },
+    {
+        question: "23. Doubly irradiating the underlying tissues in helical CT scanners occur when pitch is:",
+        options: ["A. 2", "B. 1.5", "C. 2.5", "D. 1", "E. 0.5"],
+        correct: 2 // C
+    },
+    {
+        question: "24. What is the working life of x-ray tubes in helical CT scanners?",
         options: ["A. About 10,000 to 40,000 hours", "B. About 1000 hours", "C. About 5,000 hours", "D. About 2,000 hours", "E. About 200 hours"],
         correct: 0 // A
     },
     {
-        question: "5. Increasing the number of detector rows results in ……?",
+        question: "25. The following designs in X-ray tube improve heat capacity except:",
+        options: ["A. Thick graphite backing of target disks", "B. Anode diameters of 200mm or more", "C. Metal housing with ceramic insulator", "D. Use of oil-cooled rotating anodes", "E. Anode diameters of 200mm or less"],
+        correct: 4 // E
+    },
+    {
+        question: "26. What is the slice thickness reduction in advanced MSCT systems?",
+        options: ["A. 5 mm", "B. 1 mm", "C. 0.5 mm", "D. 0.25 mm", "E. 2 mm"],
+        correct: 2 // C
+    },
+    {
+        question: "27. Which of the following is not true about MSCT?",
+        options: ["A. It uses multiple rows of detectors", "B. It increases the time required for scanning", "C. It reduces the strain on the x-ray tube", "D. It improves image resolution", "E. It shortens the time for examination"],
+        correct: 1 // B
+    },
+    {
+        question: "28. How has MSCT improved the performance of CT?",
+        options: ["A. Increased examination time", "B. Decreased imaging range", "C. Improved image resolution", "D. Reduced scan length", "E. Fewer gantry rotations"],
+        correct: 2 // C
+    },
+    {
+        question: "29. What distinguishes MSCT from SSCT?",
+        options: ["A. One-dimensional detector arrangement", "B. Single detector row", "C. Multiple detector rows", "D. Decreased z-axis coverage", "E. Increased number of gantry rotations"],
+        correct: 2 // C
+    },
+    {
+        question: "30. What determines the slab thickness per gantry rotation in MSCT scanners?",
+        options: ["A. Number of gantry rotations", "B. Length of each detector", "C. X-ray tube power", "D. Table speed", "E. Field of view"],
+        correct: 1 // B
+    },
+    {
+        question: "31. Which type of detectors are selectively activated to provide various slice thicknesses?",
+        options: ["A. Matrix detectors", "B. Hybrid detectors", "C. Adaptive array detectors", "D. All types", "E. None of the above"],
+        correct: 2 // C
+    },
+    {
+        question: "32. How can pairs of detectors be linked?",
+        options: ["A. To create thicker slices", "B. To reduce scan time", "C. To improve image quality", "D. To adjust beam width", "E. To increase gantry rotation speed"],
+        correct: 0 // A
+    },
+    {
+        question: "33. What is referred to as detector collimation in MSCT?",
+        options: ["A. Table speed", "B. Detector width", "C. Beam intensity", "D. Scan duration", "E. Patient positioning"],
+        correct: 1 // B
+    },
+    {
+        question: "34. Why are opposite images slightly inconsistent in MSCT?",
+        options: ["A. Due to beam collimation differences", "B. Because of table speed variations", "C. Due to the divergent x-ray beam", "D. Because of detector element differences", "E. Due to scan time discrepancies"],
+        correct: 2 // C
+    },
+    {
+        question: "35. What determines slice thickness in multiple-row detector CT scanners?",
+        options: ["A. Table travel per gantry rotation", "B. Collimator size", "C. Detector configuration", "D. Patient positioning", "E. Tube current"],
+        correct: 2 // C
+    },
+    {
+        question: "36. What is the definition of detector pitch in multiple-row detector CT scanners?",
+        options: ["A. Table rotation per gantry rotation divided by detector width", "B. Beam width divided by detector size", "C. X-ray tube output per rotation", "D. Table travel per gantry rotation", "E. Collimator opening size"],
+        correct: 0 // A
+    },
+    {
+        question: "37. What is the unique feature of Dual Source mode in DSCT?",
+        options: ["A. Single X-ray tube and detector array", "B. X-ray tube rotation at 180 degrees", "C. Two X-ray tubes and two detector arrays", "D. X-ray tube and detector array offset by 90 degrees", "E. Data acquisition in conventional technology"],
+        correct: 3 // D
+    },
+    {
+        question: "38. What distinguishes Dual Source mode from other operating modes in DSCT?",
+        options: ["A. Use of a single X-ray tube", "B. Simultaneous rotation of X-ray tubes", "C. Angular offset between X-ray tube and detector array", "D. Slower data acquisition compared to conventional technology", "E. Decreased resolution compared to single source CT"],
+        correct: 2 // C
+    },
+    {
+        question: "39. What advantage does DSSE mode offer in DSCT imaging?",
+        options: ["A. Reduced speed of volumetric coverage", "B. Improved imaging for obese patients", "C. Increased resolution compared to DSDE mode", "D. Enhanced customization for each patient", "E. Simultaneous operation of X-ray tubes at different energies"],
+        correct: 1 // B
+    },
+    {
+        question: "40. All of the following is used for cardiac imaging and obese patients, except:",
+        options: ["A. DSDE", "B. DSSE", "C. SSDE", "D. SSCT"],
+        correct: 3 // D
+    },
+    {
+        question: "41. Is a CT system equipped with multiple rows of CT detectors to create images of multiple sections?",
+        options: ["A. first generation", "B. sixth Generation", "C. Fourth Generation", "D. Fifth Generation", "E. seventh Generation"],
+        correct: 4 // E
+    },
+    {
+        question: "42. Regarding CT scan generations, which statement is correct",
+        options: ["A. fifth generation uses helical scanning", "B. third generation uses translate rotate motion", "C. sixth generation uses electron beam x ray source", "D. seventh generation uses multiple rows of detectors", "E. fourth generation uses dual source energy"],
+        correct: 3 // D
+    },
+    {
+        question: "43. differentiating between the calcifications and contrast material (iodine)",
+        options: ["A. first generation", "B. second generation", "C. fourth generation", "D. seventh generation", "E. eighth generation"],
+        correct: 4 // E
+    },
+    {
+        question: "44. What is the working life of x ray tubes in helical CT scanners?",
+        options: ["A. About 10,000 to 40,000 hours", "B. About 1000 hours", "C. About 5,000 hours", "D. About 2,000 hours", "E. About 200 hours"],
+        correct: 0 // A
+    },
+    {
+        question: "45. increasing the number of detector rows results in ……",
         options: ["A. increasing the z axis coverage slab thickness", "B. increasing the number of gantry rotations necessary to image the selected field", "C. increasing the strain on the x ray tube", "D. increasing scan length", "E. none of the above"],
         correct: 0 // A
     },
     {
-        question: "6. Cone beam configuration is used in which generation?",
+        question: "46. cone beam configuration is used in which generation:",
         options: ["A. seventh generation", "B. fourth generation", "C. third generation", "D. second generation", "E. first generation"],
         correct: 0 // A
     },
     {
-        question: "7. What is the primary difference between MSCT and SSCT?",
+        question: "47. What is the primary difference between MSCT and SSCT?",
         options: ["A. The gantry rotations", "B. The x ray tube", "C. The scan length", "D. The detector arrangement", "E. all of the above"],
         correct: 3 // D
     },
     {
-        question: "8. Which type of detector arrays consist of parallel rows of equal thickness?",
+        question: "48. Which type of detector arrays consist of parallel rows of equal thickness?",
         options: ["A. Matrix detectors", "B. Selective detectors", "C. Hybrid detectors", "D. Linked detectors", "E. Adaptive array detectors"],
         correct: 0 // A
     },
     {
-        question: "9. What is a disadvantage of cone-beam artifacts in MSCT?",
+        question: "49. What is a disadvantage of cone-beam artifacts in MSCT?",
         options: ["A. Cone beam artifact severity is directly proportional to the number of detector rows", "B. Cone beam artifacts result in consistent and identical images", "C. Cone beam artifacts are more pronounced in SSCT than in MSCT", "D. Cone beam artifacts can be reduced with wider x-ray beam widths", "E. Cone-shaped x ray beam sampling is the same at 0 and at 180 degrees"],
         correct: 0 // A
     },
     {
-        question: "10. With the introduction of multiple detector arrays, what determines the slice thickness in CT scanners?",
+        question: "50. With the introduction of multiple detector arrays, what determines the slice thickness in CT scanners?",
         options: ["A. The detector size", "B. The collimator", "C. The spatial resolution", "D. The x-ray tube", "E. The contrast resolution"],
         correct: 0 // A
     },
     {
-        question: "11. In Dual Source CT, how many X-ray tubes and detector arrays are present?",
+        question: "51. In Dual Source CT, how many X-ray tubes and detector arrays are present?",
         options: ["A. three", "B. two", "C. one", "D. four", "E. five"],
         correct: 1 // B
     },
     {
-        question: "12. What is the key to high sensitivity and specificity in imaging with dual energy acquisition?",
+        question: "52. What is the key to high sensitivity and specificity in imaging with dual energy acquisition?",
         options: ["A. Utilizing two detectors", "B. Rapid alternation between high and low kilovoltage settings", "C. X-ray tubes set at different energies", "D. Single source dual energy", "E. Using high energy electron beam"],
         correct: 2 // C
     },
     {
-        question: "13. In DECT, how many images are acquired per location?",
+        question: "53. In DECT, how many images are acquired per location?",
         options: ["A. three", "B. four", "C. one", "D. five", "E. two"],
         correct: 4 // E
     },
     {
-        question: "14. What factors determine the degree of X-ray beam attenuation in a material?",
+        question: "54. What factors determine the degree of X-ray beam attenuation in a material?",
         options: ["A. tissue composition and photon energy level", "B. exercise and diet", "C. body temperature and heart rate", "D. blood type and blood pressure", "E. water intake"],
         correct: 0 // A
     },
     {
-        question: "15. What is the function of the collimators in CT scan?",
+        question: "55. What is the function of the collimators in CT scan?",
         options: ["A. Rotate mounted scan frame that surrounds the patient", "B. Approach the patient from both the front and back", "C. Capture x-ray photons and convert them into electrical signals", "D. Convert the analog information into digital data", "E. Define slice thickness and restrict x-ray beam to the cross section of interest"],
         correct: 4 // E
     },
     {
-        question: "16. In MSCT scanners, one disadvantage that summarized by one of the following:",
+        question: "56. In MSCT scanners, one disadvantage that summarized by one of the following:",
         options: ["A. Less contrast resolution", "B. Partial volume streaking", "C. Less scan time for tissue imaging", "D. More radiation dose received by the patient", "E. more detector array consuming"],
         correct: 3 // D
     },
     {
-        question: "17. In MS/MD CT, if each detector was 1.25 mm long and the scanner had 16 rows of detectors, the z axis coverage (slab thickness) per gantry rotation would total……mm?",
+        question: "57. In (MS/MD CT), if each detector was 1.25 mm long and the scanner had 16 rows of detectors, the z axis coverage (slab thickness) per gantry rotation would total……mm?",
         options: ["A. 10mm", "B. 30mm", "C. 20mm", "D. 50mm", "E. E-22m"],
         correct: 2 // C
     },
     {
-        question: "18. The degree that a material will attenuate the X-ray beam is dependent on:",
+        question: "58. The degree that a material will attenuate the X-ray beam is dependent on:",
         options: ["A. density of the absorber", "B. radiation beam energy", "C. atomic number of the absorber", "D. A and B", "E. all of the above"],
         correct: 4 // E
     },
     {
-        question: "19. Utilizes two X-ray tubes and two detectors to obtain simultaneous dual energy acquisition and data processing?",
+        question: "59. Utilizes two X-ray tubes and two detectors to obtain simultaneous dual energy acquisition and data processing",
         options: ["A. Dual Source Dual Energy (DSDE)", "B. Dual Source Single Energy (DSSE)", "C. Single Source Dual Energy (SSDE)", "D. all of the above", "E. none of the above"],
         correct: 0 // A
     },
     {
-        question: "20. In this mode, both X-ray tubes work at the same kVp setting?",
+        question: "60. In this mode, both X-ray tubes work at the same kVp setting",
         options: ["A. Dual Source Dual Energy (DSDE)", "B. Dual Source Single Energy (DSSE)", "C. Single Source Dual Energy (SSDE)", "D. all of the above", "E. none of the above"],
         correct: 1 // B
     },
     {
-        question: "21. The…..equipped with two data measurement systems, that it is possible to double the resolution?",
+        question: "61. The…..equipped with two data measurement systems, that it is possible to double the resolution",
         options: ["A. SSCT", "B. MSCT", "C. EBSCT", "D. DSCT", "E. not all of the above"],
         correct: 3 // D
     },
     {
-        question: "22. In….the slice thickness is determined by detector configuration and not x ray beam collimation?",
+        question: "62. In….the slice thickness is determined by detector configuration and not x ray beam collimation.",
         options: ["A. SSCT", "B. MSCT", "C. EBSCT", "D. Helical CT", "E. not all of the above"],
         correct: 1 // B
     },
     {
-        question: "23. In (…..) X ray beam collimation was designed such that the z axis width of the x ray beam at the isocenter (center of rotation) was the desired slice thickness?",
+        question: "63. In (…..) X ray beam collimation was designed such that the z axis width of the x ray beam at the isocenter (center of rotation) was the desired slice thickness.",
         options: ["A. SSCT", "B. MSCT", "C. EBSCT", "D. Helical CT", "E. not all of the above"],
         correct: 1 // B
     },
     {
-        question: "24. Regarding types of detector arrays:",
+        question: "64. Regarding types of detector arrays :",
         options: ["A. Matrix detectors, which consist of parallel rows of equal thickness", "B. Hybrid detectors with smaller detector rows in the center", "C. Adaptive array detectors that consist of detector rows with varying thickness", "D. C and B", "E. all of the above"],
         correct: 4 // E
     },
     {
-        question: "25. In MSCT, if the detector width is 5mm, beam width 20mm and the table moves 10mm during one tube rotation, what is the pitch?",
+        question: "65. In MSCT, if the detector width is 5mm, beam width 20mm and the table moves 10mm during one tube rotation, what is the pitch?",
         options: ["A. 2", "B. 1.5", "C. 2.5", "D. 1", "E. 0.5"],
         correct: 4 // E
     }
 	];
 
         // التحقق من الإكمال السابق
-        if (localStorage.getItem('quizCompleted')) {
-            document.getElementById('loginForm').innerHTML = `
-                <h2 style="color:${getComputedStyle(document.documentElement).getPropertyValue('--danger-color')}">
-                    لقد أكملت الاختبار مسبقًا
-                </h2>
-                <p>لا يمكن إعادة المحاولة</p>
-            `;
-        }
+        //if (localStorage.getItem('quizCompleted')) {
+          //  document.getElementById('loginForm').innerHTML = `
+           //     <h2 style="color:${getComputedStyle(document.documentElement).getPropertyValue('--danger-color')}">
+           //         لقد أكملت الاختبار مسبقًا
+           //     </h2>
+           //     <p>لا يمكن إعادة المحاولة</p>
+          //  `;
+       // }
+
+// دالة خلط المصفوفة (Fisher-Yates algorithm)
+function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+}
+
 
         function startQuiz() {
             const password = document.getElementById('password').value;
+			    const eyes = document.getElementById('eyes');
             if (password !== CORRECT_PASSWORD) {
+			    eyes.classList.add('eye-blink');
+				setTimeout(() => eyes.classList.remove('eye-blink'), 500);
                 alert('كلمة المرور غير صحيحة!');
                 return;
             }
 
+    // تفاعل الفرح عند الإجابة الصحيحة
+    eyes.classList.add('eye-happy');
+    setTimeout(() => eyes.classList.remove('eye-happy'), 1000);
+
+    // خلط الخيارات لكل سؤال مع تحديث الإجابة الصحيحة
+    questions.forEach(question => {
+        const originalAnswer = question.options[question.correct]; // حفظ الإجابة الصحيحة
+        question.options = shuffleArray([...question.options]); // نسخ المصفوفة وخلطها
+        question.correct = question.options.indexOf(originalAnswer); // تحديث موقع الإجابة الصحيحة
+    });
+	
             document.getElementById('loginForm').classList.add('hidden');
             document.getElementById('quizContainer').classList.remove('hidden');
             document.getElementById('timer').classList.remove('hidden');
@@ -338,7 +693,7 @@
                     `${minutes}:${seconds.toString().padStart(2, '0')}`;
 
                 if (timeLeft <= 0) submitQuiz();
-            }, 1000);
+            }, 3000);
         }
 
 function selectAnswer(qIndex, aIndex) {
@@ -355,7 +710,7 @@ function selectAnswer(qIndex, aIndex) {
             const score = userAnswers.reduce((acc, answer, index) => 
                 answer === questions[index].correct ? acc + 1 : acc, 0);
             
-            const totalScore = ((score / questions.length) * 25).toFixed(1);
+            const totalScore = ((score / questions.length) * 65).toFixed(1);
             const username = document.getElementById('username').value;
 
             // حفظ النتائج في Firebase
@@ -390,12 +745,12 @@ function selectAnswer(qIndex, aIndex) {
             const resultHTML = `
                 <h2>النتيجة النهائية</h2>
                 <p>الاسم: ${username}</p>
-                <p>الدرجة: ${totalScore}/25</p>
-                ${totalScore >= 20 ? 
+                <p>الدرجة: ${totalScore}/65</p>
+                ${totalScore >= 50 ? 
                     '<p style="color:green">أنت وحش! جائزتك 1000 دينار</p>' : 
-                    totalScore >= 12.5 ? 
+                    totalScore >= 32.5 ? 
                     '<p style="color:blue">مبروك! نجحت في الاختبار</p>' : 
-                    '<p style="color:red">اقرأ وين يالكسلان</p>'}
+                    '<p style="color:red">اقرأ زين يالكسلان</p>'}
                 <hr>
                 <h3>تفاصيل الإجابات:</h3>
                 ${answersReport}
